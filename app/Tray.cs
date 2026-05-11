@@ -74,7 +74,7 @@ namespace ParsecVDisplay
                                 (MI_RunOnStartup = new ToolStripMenuItem("t_run_on_startup",
                                     null, OptionsCheck) { CheckOnClick = true, Checked = Config.RunOnStartup }),
                                 (MI_RestoreDisplays = new ToolStripMenuItem("t_restore_displays",
-                                    null, OptionsCheck) { CheckOnClick = true, Checked = Config.DisplayCount >= 0 }),
+                                    null, OptionsCheck) { CheckOnClick = true, Checked = Config.DisplayCount > 0 }),
                                 new ToolStripSeparator(),
                                 (MI_FallbackDisplay = new ToolStripMenuItem("t_fallback_display",
                                     null, OptionsCheck) { CheckOnClick = true, Checked = Config.FallbackDisplay }),
@@ -199,16 +199,21 @@ namespace ParsecVDisplay
 
         void RestoreDisplays()
         {
-            //var savedCount = Config.DisplayCount;
+            var savedCount = Config.DisplayCount;
+            if (savedCount <= 0) return;
 
-            //if (savedCount > 0)
-            //{
-            //    var displays = Vdd.Core.GetDisplays();
-            //    var amount = savedCount - displays.Count;
+            try
+            {
+                var displays = Vdd.Core.GetDisplays();
+                var amount = savedCount - displays.Count;
 
-            //    for (int i = 0; i < amount; i++)
-            //        Controller.AddDisplay(out var _);
-            //}
+                for (int i = 0; i < amount; i++)
+                    Vdd.Controller.AddDisplay();
+            }
+            catch (Exception ex)
+            {
+                HandleVddError(ex);
+            }
         }
 
         public void AddDisplay(object sender, EventArgs e)
